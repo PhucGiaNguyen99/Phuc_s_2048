@@ -36,14 +36,20 @@ class Board:
     def __init__(self):
         self.n=4
         self.window=Tk()
-        self.window.titlle('Phucs 2048 Game')
+        #self.window.titlle('Phucs 2048 Game')
         self.gameArea=Frame(self.window, bg='azure3')
 
         self.board=[]
+
+        # Build 4x4 board
         self.gridCell=[[0]*4 for i in range(4)]
+
         self.compress=False
+
         self.merge=False
+
         self.moved=False
+
         self.score=0
 
         for i in range(4):
@@ -57,6 +63,7 @@ class Board:
             self.board.append(rows)
         self.gameArea.grid()
 
+    # Function to reverse the grid
     def reverse(self):
         for ind in range(4):
             i=0
@@ -65,6 +72,48 @@ class Board:
                 self.gridCell[ind][i], self.gridCell[ind][j]=self.gridCell[ind][j], self.gridCell[ind][i]
                 i+=1
                 j-=1
+
+    # Function to transform rows to columns and vice versa.
+    # zip is used to combine elements from 2 or more iterables together, element-wise, into tuples.
+    # '*' is the unpacking operator, which takes a list and unpacks its elements as if they were individual arguments to a function
+    def transpose(self):
+        self.gridCell=[list(t) for t in zip(*self.gridCell)]
+
+    # Function to check if the grid has been compressed and then compress it
+    def compressGrid(self):
+        self.compress=False
+        # Create a clone grid
+        temp=[[0]*4 for i in range(4)]
+        for i in range(4):
+            cnt=0
+            for j in range(4):
+                # If encountering a non-zero element, move this element to the leftmost position in the new grid
+                if self.gridCell[i][j]!=0:
+                    temp[i][cnt]=self.gridCell[i][j]
+
+                    # If the element is moved from its original position
+                    if cnt!=j:
+                        self.compress=True
+                    cnt+=1
+        # Set the compressed grid cell to gridCell
+        self.gridCell=temp
+
+    # Function to merge grid
+    def mergeGrid(self):
+        self.merge=False
+        for i in range(4):
+            for j in range(3):
+                # If found 2 equal elements and they are non-zeroes
+                if self.gridCell[i][j]==self.gridCell[i][j+1] and self.gridCell[i][j]!=0:
+                    self.gridCell[i][j]*=2
+                    self.gridCell[i][j+1]=0
+                    self.score+=self.gridCell[i][j]
+                    self.merge=True
+
+
+
+
+
 
     def transpose(self):
         self.gridCell=[list(t) for t in zip(*self.gridCell)]
