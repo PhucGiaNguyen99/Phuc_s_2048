@@ -49,6 +49,22 @@ def mergeGrid(gridCell):
                 merge = True
     return gridCell
 
+def can_merge(gridCell):
+        for i in range(4):
+            for j in range(3):
+                if gridCell[i][j] == gridCell[i][j + 1]:
+                    return True
+
+        for i in range(3):
+            for j in range(4):
+                if gridCell[i + 1][j] == gridCell[i][j]:
+                    return True
+
+        return False
+
+
+
+
 
 
 def printGridCell(gridCell):
@@ -183,6 +199,39 @@ class TestMergeGridFunction(unittest.TestCase):
         expected = [[2, 4, 8, 16], [32, 64, 128, 256], [512, 1024, 2048, 4096], [8192, 16384, 32768, 65536]]
         merged_grid = mergeGrid(grid)
         self.assertEqual(merged_grid, expected, "Grid without mergable elements should remain unchanged.")
+
+class TestCanMergeFunction(unittest.TestCase):
+    def test_can_merge_horizontally(self):
+        grid=[
+            [2, 4, 4, 8],
+            [16, 32, 64, 128],
+            [256, 512, 1024, 2048],
+            [4096, 8192, 16384, 32768]
+        ]
+        self.assertTrue(can_merge(grid), "Should be able to merge horizontally")
+
+    def test_can_merge_vertically(self):
+        grid=[
+            [2, 4, 8, 16],
+            [2, 32, 64, 128],
+            [256, 512, 1024, 2048],
+            [256, 8192, 16384, 32768]
+        ]
+        self.assertTrue(can_merge(grid), "Should be able to mege vertically")
+
+    def test_cannot_merge(self):
+        grid=[
+            [2, 4, 8, 16],
+            [32, 64, 128, 256],
+            [512, 1024, 2048, 4096],
+            [8192, 16384, 32768, 65536]
+        ]
+        self.assertFalse(can_merge(grid), "Should not be able to merge any tiles")
+
+
+
+
+
 
 
 if __name__ == '__main__':

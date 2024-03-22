@@ -110,11 +110,142 @@ class Board:
                     self.score+=self.gridCell[i][j]
                     self.merge=True
 
+    # Function to pick a random cell
+    def random_cell(self):
+        cells=[]
+        for i in range(4):
+            for j in range(4):
+                # Get list of empty cells
+                if self.gridCell[i][j]==0:
+                    cells.append((i, j))
+        curr=random.choice(cells)
+        i=curr[0]
+        j=curr[1]
+        self.gridCell[i][j]=2
 
+    # Function to check if can merge horizontally or vertically (left to right and top to bottom)
+    def can_merge(self):
+        for i in range(4):
+            for j in range(3):
+                if self.gridCell[i][j]==self.gridCell[i][j+1]:
+                    return True
 
+        for i in range(3):
+            for j in range(4):
+                if self.gridCell[i+1][j]==self.gridCell[i][j]:
+                    return True
 
-
+        return False
 
     def transpose(self):
         self.gridCell=[list(t) for t in zip(*self.gridCell)]
 
+    # Function to paint the grid
+    def paintGrid(self):
+        for i in range(4):
+            for j in range(4):
+                if self.gridCell[i][j]==0:
+                    self.board[i][j].config(text='', bg='azure4')
+                else:
+                    self.board[i][j].config(text=str(self.gridCell[i][j]),
+                        bg=self.bg_color.get(str(self.gridCell[i][j])),
+                        fg=self.color.get(str(self.gridCell[i][j])))
+
+class Game:
+    def __init__(self, gamePannel):
+        self.gamePannel = gamePannel
+        self.end = False
+        self.won = False
+
+    def start(self):
+        self.gamePannel.random_cell()
+        self.gamePannel.random_cell()
+        self.gamePannel.paintGrid()
+        self.gamePannel.window.bind('<Key', self.link_keys)
+        self.gamePannel.window.mainloop()
+
+    def link_keys(self, event):
+        if self.end or self.won:
+            return
+
+        self.gamePannel.compress = False
+        self.gamePannel.merge = False
+        self.gamePannel.moved = False
+
+        presed_key = event.keysym
+
+        if presed_key == 'Up':
+            self.gamePannel.tranpose()
+            self.gamePannel.compressGrid()
+            self.gamePannel.mergeGrid()
+            self.gamePannel.moved=self.gamePannel.compress or self.gamePannel
+            self.gamePannel.compressGrid()
+            self.gamePannel.tranpose()
+
+        elif presed_key == 'Down':
+            self.gamepanel.transpose()
+
+            # Reverse the grid
+            self.gamepanel.reverse()
+            self.gamepanel.compressGrid()
+            self.gamepanel.mergeGrid()
+            self.gamepanel.moved = self.gamepanel.compress or self.gamepanel.merge
+            self.gamepanel.compressGrid()
+
+            # Reverse the grid back
+            self.gamepanel.reverse()
+            self.gamepanel.transpose()
+
+        elif presed_key=='Left':
+            self.gamePannel.compressGrid()
+            self.gamePannel.mergeGrid()
+            self.gamePannel.moved=self.gamePannel.compress or self.gamePannel.merge
+            self.gamePannel.compressGrid()
+
+        elif presed_key == 'Right':
+            self.gamepanel.reverse()
+            self.gamepanel.compressGrid()
+            self.gamepanel.mergeGrid()
+            self.gamepanel.moved = self.gamepanel.compress or self.gamepanel.merge
+            self.gamepanel.compressGrid()
+            self.gamepanel.reverse()
+
+        else:
+            pass
+
+        self.gamePannel.paintGrid()
+        print(self.gamePannel.score)
+
+        flag=0
+        # Check if the player reached 2048
+        for i in range(4):
+            for j in range(4):
+                if (self.gamePannel.gridCell[i][j]==2048):
+                    flag=1
+                    break
+
+        if (flag==1):
+            self.won=True
+            messagebox.showinfo('2048', message='You won!!!!')
+            print('Won')
+            return
+
+        for i in range(4):
+            for j in range(4):
+                if (self.gamePannel.gridCell[i][j]==0):
+                    flag=1
+                    break
+
+        if not(flag or self.gamePannel.can_merge()):
+            self.end=True
+            messagebox.showinfo('2048', 'Game over!!!')
+            print("Game over!!")
+
+        if self.gamePannel.moved:
+            self.gamePannel.random_cell()
+
+        self.gamePannel.paintGrid()
+
+gamePannel=Board()
+game2048=Game(gamePannel)
+game2048.start()
